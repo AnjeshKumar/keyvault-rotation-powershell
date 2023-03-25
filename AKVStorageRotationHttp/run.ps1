@@ -17,10 +17,10 @@ function RegenerateKey($keyId, $providerAddress){
     return $newKeyValue
 }
 
-function AddSecretToKeyVault($keyVAultName,$secretName,$newAccessKeyValue,$exprityDate,$tags){
+function AddSecretToKeyVault($keyVAultName,$secretName,$newAccessKeyValue,$exprityDates){
     
     $secretvalue = ConvertTo-SecureString "$newAccessKeyValue" -AsPlainText -Force
-    Set-AzKeyVaultSecret -VaultName $keyVAultName -Name $secretName -SecretValue $secretvalue -Tag $tags -Expires $expiryDate
+    Set-AzKeyVaultSecret -VaultName $keyVAultName -Name $secretName -SecretValue $secretvalue  -Expires $expiryDate
 
 }
 
@@ -40,35 +40,25 @@ function GetAlternateCredentialId($keyId){
 
 function RoatateSecret($keyVaultName,$secretName){
     #Retrieve Secret
-    $secret = (Get-AzKeyVaultSecret -VaultName $keyVAultName -Name $secretName)
+    $secret = (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name $secretName)
     Write-Host "Secret Retrieved"
     
-    #Retrieve Secret Info
-    $validityPeriodDays = $secret.Tags["ValidityPeriodDays"]
-    $credentialId=  $secret.Tags["CredentialId"]
-    $providerAddress = $secret.Tags["ProviderAddress"]
-    
+        
     Write-Host "Secret Info Retrieved"
     Write-Host "Validity Period: $validityPeriodDays"
     Write-Host "Credential Id: $credentialId"
     Write-Host "Provider Address: $providerAddress"
 
-    #Get Credential Id to rotate - alternate credential
-    $alternateCredentialId = GetAlternateCredentialId $credentialId
-    Write-Host "Alternate credential id: $alternateCredentialId"
+    # Create new Application secrets
+    $startDate = Get-Date
+    $endDate = $startDate.AddYears(3)
+    $aadAppsecret01 = New-AzureADApplicationPasswordCredential -ObjectId a1e0aee5-0c6a-4c20-b25b-563ee7ad0828 -CustomKeyIdentifier "KeyCloak" -StartDate $startDate -EndDate $endDate
 
-    #Regenerate alternate access key in provider
-    $newAccessKeyValue = (RegenerateKey $alternateCredentialId $providerAddress)[-1]
-    Write-Host "Access key regenerated. Access Key Id: $alternateCredentialId Resource Id: $providerAddress"
+    
+    Write-Host "Alternate credential id: $aadAppsecret01"
 
-    #Add new access key to Key Vault
-    $newSecretVersionTags = @{}
-    $newSecretVersionTags.ValidityPeriodDays = $validityPeriodDays
-    $newSecretVersionTags.CredentialId=$alternateCredentialId
-    $newSecretVersionTags.ProviderAddress = $providerAddress
-
-    $expiryDate = (Get-Date).AddDays([int]$validityPeriodDays).ToUniversalTime()
-    AddSecretToKeyVault $keyVAultName $secretName $newAccessKeyValue $expiryDate $newSecretVersionTags
+    
+    AddSecretToKeyVault $keyVAultName $secretName $aadAppsecret01 $endDate 
 
     Write-Host "New access key added to Key Vault. Secret Name: $secretName"
 }
