@@ -12,8 +12,6 @@ function RegenerateKey($keyId, $providerAddress){
     #Regenerate key 
     New-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAccountName -KeyName $keyId
     $newKeyValue = (Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $storageAccountName|where KeyName -eq $keyId).value
-
-
     return $newKeyValue
 }
 
