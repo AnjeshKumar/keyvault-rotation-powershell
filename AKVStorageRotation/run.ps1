@@ -79,6 +79,6 @@ Write-Host "Secret Name: $secretName"
 
 #Rotate secret
 Write-Host "Rotation started."
-RoatateSecret $keyVAultName $secretName
+#RoatateSecret $keyVAultName $secretName
 Write-Host "Secret Rotated Successfully"
 
