@@ -38,23 +38,17 @@ function GetAlternateCredentialId($keyId){
 }
 
 function RoatateSecret($keyVaultName,$secretName){
-    #Retrieve Secret
-    $secret = (Get-AzKeyVaultSecret -VaultName $keyVaultName -Name $secretName)
-    Write-Host "Secret Retrieved"
+          
     
-        
-    Write-Host "Secret Info Retrieved"
-    Write-Host "Validity Period: $validityPeriodDays"
-    Write-Host "Credential Id: $credentialId"
-    Write-Host "Provider Address: $providerAddress"
 
     # Create new Application secrets
     $startDate = Get-Date
     $endDate = $startDate.AddYears(3)
     $aadAppsecret01 = New-AzureADApplicationPasswordCredential -ObjectId a1e0aee5-0c6a-4c20-b25b-563ee7ad0828 -CustomKeyIdentifier "KeyCloak" -StartDate $startDate -EndDate $endDate
-
     
-    Write-Host "Alternate credential id: $aadAppsecret01"
+    #Retrieve Secret
+    Write-Host "Secret Retrieved"    
+    Write-Host "Secret value: $aadAppsecret01"
 
     
     AddSecretToKeyVault $keyVAultName $secretName $aadAppsecret01 $endDate 
