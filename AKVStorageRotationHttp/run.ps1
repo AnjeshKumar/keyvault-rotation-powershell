@@ -76,7 +76,7 @@ Try{
     
     #Rotate secret
     Write-Host "Rotation started. Secret Name: $secretName"
-    RoatateSecret $keyVAultName $secretName
+    #RoatateSecret $keyVAultName $secretName
 
     $status = [HttpStatusCode]::Ok
     $body = "Secret Rotated Successfully"
