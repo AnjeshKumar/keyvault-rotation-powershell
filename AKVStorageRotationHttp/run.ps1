@@ -41,7 +41,7 @@ function GetAlternateCredentialId($keyId){
 function RoatateSecret($keyVaultName,$secretName){
           
     
-
+    Connect-AzureAD
     # Create new Application secrets
     $startDate = Get-Date
     $endDate = $startDate.AddYears(3)
@@ -52,7 +52,7 @@ function RoatateSecret($keyVaultName,$secretName){
     Write-Host "Secret value: $aadAppsecret01"
 
     
-    AddSecretToKeyVault $keyVAultName $secretName $aadAppsecret01 $endDate 
+    #AddSecretToKeyVault $keyVAultName $secretName $aadAppsecret01 $endDate 
 
     Write-Host "New access key added to Key Vault. Secret Name: $secretName"
 }
@@ -76,7 +76,7 @@ Try{
     
     #Rotate secret
     Write-Host "Rotation started. Secret Name: $secretName"
-    #RoatateSecret $keyVAultName $secretName
+    RoatateSecret $keyVAultName $secretName
 
     $status = [HttpStatusCode]::Ok
     $body = "Secret Rotated Successfully"
